@@ -2123,8 +2123,9 @@ export default function AdminPage() {
                       </div>
 
                       {trip.stopTelemetry && (() => {
-                        const totalEntriesVal = Object.values(trip.stopTelemetry).reduce((s: any, t: any) => s + (t.entries || 0), 0)
-                        const totalScansVal = Object.values(trip.stopTelemetry).reduce((s: any, t: any) => s + (t.scans || 0), 0)
+                        const stopData = trip.stopTelemetry as Record<string, any>
+                        const totalEntriesVal = Object.values(stopData).reduce((s: number, t: any) => s + (t.entries || 0), 0)
+                        const totalScansVal = Object.values(stopData).reduce((s: number, t: any) => s + (t.scans || 0), 0)
                         const unbookedCount = Math.max(0, totalEntriesVal - totalScansVal)
                         
                         return (
@@ -2181,8 +2182,8 @@ export default function AdminPage() {
                                   </div>
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {(() => {
-                                      const routeStops = (trip.busRoute && PMPL_ROUTES[trip.busRoute]) || PMPL_STOPS
-                                      return routeStops.map((stop) => {
+                                      const routeStops: string[] = (trip.busRoute && PMPL_ROUTES[trip.busRoute]) || PMPL_STOPS
+                                      return routeStops.map((stop: string) => {
                                         const stats = trip.stopTelemetry?.[stop] || { entries: 0, exits: 0, scans: 0 }
                                         const unbooked = Math.max(0, (stats.entries || 0) - (stats.scans || 0))
                                         return (
