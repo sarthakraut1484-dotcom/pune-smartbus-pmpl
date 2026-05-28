@@ -1,0 +1,251 @@
+================================================================================
+PMPL SMART BUS ECOSYSTEM: PYTHON LIBRARIES & DEPENDENCY COMPENDIUM
+================================================================================
+Project: Pune Mahanagar Parivahan Intelligent Occupancy & QR Ticket System
+Workspace Path: C:\Users\Sarthak Raut\Desktop\AE CP
+Date: May 2026
+================================================================================
+
+This document provides a highly detailed, exhaustive explanation of every single 
+Python library (both major third-party packages and minor standard modules) used 
+in this smart transit ecosystem. 
+
+For each library, you will find:
+1. Technical Classification (Major/Minor, Third-Party/Standard)
+2. Core Purpose & Responsibility in the Project
+3. Key Functions & Methods Executed
+4. Practical Code Context (How it fits in)
+5. Why It Is Critical for this System
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. INSTALLATION & SETUP COMMANDS
+2. MAJOR THIRD-PARTY LIBRARIES
+   - Streamlit (streamlit)
+   - OpenCV (cv2 / opencv-python)
+   - Pandas (pandas)
+   - Plotly (plotly)
+   - PyZbar (pyzbar)
+   - NumPy (numpy)
+   - Requests (requests)
+3. MINOR & STANDARD PYTHON LIBRARIES
+   - Urllib (urllib.request)
+   - Time (time)
+   - Datetime (datetime)
+   - JSON (json)
+4. ARCHITECTURAL INTERACTION DIAGRAM
+
+================================================================================
+1. INSTALLATION & SETUP COMMANDS
+================================================================================
+To install all external (third-party) dependencies required to run your Python 
+ecosystem, run the following command in your terminal:
+
+pip install streamlit pandas requests plotly matplotlib opencv-python numpy pyzbar
+
+Note: Standard libraries (urllib, time, datetime, json) are packaged with Python 
+by default and do not require separate installation.
+
+================================================================================
+2. MAJOR THIRD-PARTY LIBRARIES
+================================================================================
+
+--------------------------------------------------------------------------------
+A. STREAMLIT (streamlit)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (Web Application Framework)
+* Core Purpose: Renders the entire, high-fidelity administrative dashboard GUI. 
+  It hosts the metrics, control panels, interactive charts, and maps.
+* Why it was chosen: Developing dashboards in traditional desktop toolkits (like 
+  Tkinter or PyQt) results in outdated, non-responsive interfaces. Streamlit 
+  enables developers to build reactive, professional web frontends completely in 
+  Python with minimal code.
+* Key Methods Used:
+  - st.set_page_config(): Configures page metadata (title, icon, widescreen layout).
+  - st.markdown(..., unsafe_allow_html=True): Injects custom CSS stylesheets, 
+    Google typography ("Outfit"), and client-side JavaScript into the DOM.
+  - st.columns(): Spits the layout into dynamic grids for side-by-side charts 
+    and data summaries.
+  - st.button(): Captures mouse clicks to trigger data reload operations.
+  - st.plotly_chart() / st.pyplot(): Smoothly embeds vector charts and 
+    Matplotlib figures into the web page.
+  - st.rerun(): Programmatically forces Streamlit to refresh and pull database updates.
+
+--------------------------------------------------------------------------------
+B. OPENCV-PYTHON (cv2)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (Computer Vision & Image Processing)
+* Core Purpose: Serves as the visual processor of your hardware node. It fetches 
+  raw images from the ESP32 camera, converts them to renderable colors, overlays 
+  text feedback (HUD), displays the stream on-screen, and closes windows gracefully.
+* Why it was chosen: OpenCV is the industry-standard computer vision library. It 
+  provides incredibly fast image transformations and window-rendering bindings.
+* Key Methods Used:
+  - cv2.namedWindow(): Creates and titles the graphical window container.
+  - cv2.imdecode(): Converts a flat stream of JPEG bytes (from the camera) into 
+    a 3-dimensional multi-channel pixel array (BGR color matrix) that computer 
+    vision algorithms can understand.
+  - cv2.putText(): Overlays live QR code content coordinates and metadata directly 
+    onto the video frames (HUD).
+  - cv2.imshow(): Renders the processed image frame onto the GUI.
+  - cv2.waitKey(): Polls for keyboard inputs (used to listen for the "ESC" key 
+    to terminate the scanner loop).
+  - cv2.destroyAllWindows(): Releases system memory and closes visual windows.
+
+--------------------------------------------------------------------------------
+C. PANDAS (pandas)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (Data Science & Analysis Toolkit)
+* Core Purpose: Parses raw JSON database entries into structured DataFrames (tables). 
+  It cleans, formats, aggregates, and prepares transit metrics for visualization.
+* Why it was chosen: It provides high-performance data manipulation. Instead of 
+  writing complex nested loops to clean raw lists, Pandas can aggregate ticket 
+  fares and passenger volumes in a single line of code.
+* Key Methods Used:
+  - pd.DataFrame(): Parses list structures into two-dimensional labeled tables.
+  - df.apply(): Strips rupee symbols ("₹") and converts strings into floating-point numbers.
+  - df.sum() / df.mean(): Aggregates financial totals, averaging route fares, 
+    and counting demographic variables (adults vs. children).
+  - df['Route Corridor'].value_counts().reset_index(): Computes frequency 
+    rankings of routes automatically to feed the Plotly bar graphs.
+
+--------------------------------------------------------------------------------
+D. PLOTLY (plotly.express & plotly.graph_objects)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (Interactive Data Visualization)
+* Core Purpose: Generates high-end interactive charts that allow administrators 
+  to hover, zoom, and filter transit revenue and passenger statistics.
+* Why it was chosen: It makes charts feel organic and modern. Standard charts 
+  are static; Plotly charts react to user clicks and display clean popup overlays.
+* Key Methods Used:
+  - px.bar(): Generates horizontal bar charts representing booking frequencies.
+  - px.pie(): Generates high-fidelity donut charts indicating service splits 
+    (AC, Express, Regular).
+  - fig.update_layout(): Tweaks page styles (removes chart backgrounds, matches 
+    the text color to the dashboard, adjusts padding and alignment).
+
+--------------------------------------------------------------------------------
+E. PYBAR (pyzbar / pyzbar.pyzbar)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (QR & Barcode Optical Decoder)
+* Core Purpose: The visual decoder engine that analyzes raw camera frames, 
+  detects QR geometries, and decodes the embedded text payload.
+* Why it was chosen: PyZbar wraps the robust C-based `zbar` barcode reader library, 
+  allowing highly accurate, instantaneous QR decoding in pure Python.
+* Key Methods Used:
+  - pyzbar.decode(frame): Scans the active video frame matrix, locates the three 
+    marker squares in the QR code, processes the pattern, and outputs a list 
+    of decoded objects containing payload text, type, and screen boundaries.
+
+--------------------------------------------------------------------------------
+F. NUMPY (numpy)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (High-Performance Numerical Array Processing)
+* Core Purpose: Connects the raw network byte stream with the OpenCV visual compiler. 
+  It takes raw binary packets and packages them into high-speed array memory.
+* Why it was chosen: Camera streams transfer millions of bytes per second. Standard 
+  Python lists are far too slow to handle this in real-time. NumPy provides 
+  compiled C-level arrays that handle streaming data at maximum speed.
+* Key Methods Used:
+  - np.array(..., dtype=np.uint8): Converts a raw 1D array of binary image packets 
+    downloaded via HTTP into a structured NumPy array of unsigned 8-bit integers.
+
+--------------------------------------------------------------------------------
+G. REQUESTS (requests)
+--------------------------------------------------------------------------------
+* Classification: Major, Third-Party (HTTP Client Library)
+* Core Purpose: Handles cloud database operations. It reads and writes live stats, 
+  tickets, and scanned QR turnstile records to the Firebase Realtime Database.
+* Why it was chosen: It is the standard for web communication in Python. It replaces 
+  Python's verbose low-level socket APIs with a highly intuitive REST client.
+* Key Methods Used:
+  - requests.get(url): Fetches live metrics (occupancy, total exit/entry logs, active tickets) 
+    from Firebase endpoints.
+  - requests.put(url, json=data): Securely updates database records with scanned 
+    QR ticket codes, keeping the turnstile hardware and dashboard in lockstep.
+
+================================================================================
+3. MINOR & STANDARD PYTHON LIBRARIES
+================================================================================
+
+--------------------------------------------------------------------------------
+A. URLLIB (urllib.request)
+--------------------------------------------------------------------------------
+* Classification: Minor, Standard (Built-in Web Utility)
+* Core Purpose: Establishes a secure connection to the local IP address of your 
+  ESP32-CAM microcontroller to download the live stream.
+* Why it was chosen: While `requests` is excellent for structured API queries, 
+  `urllib.request` provides lightweight, low-level stream connections suited for 
+  polling individual camera snapshot frames (/cam-hi.jpg) without extra overhead.
+* Key Methods Used:
+  - urllib.request.urlopen(): Opens a persistent socket network connection to the 
+    ESP32-CAM, returning raw image data chunk-by-chunk.
+
+--------------------------------------------------------------------------------
+B. TIME (time)
+--------------------------------------------------------------------------------
+* Classification: Minor, Standard (System Clock Utility)
+* Core Purpose: Handles dashboard pacing and scanner frame-rate regulation.
+* Why it was chosen: Keeps system processes stable and prevents overloading.
+* Key Methods Used:
+  - time.sleep():
+    - In Dashboard: Restricts how frequently the backend queries the database.
+    - In Scanner: Introduces a brief delay (0.1s) to let the ESP32 camera breathe, 
+      preventing network congestion.
+  - time.time(): Generates standard Unix Epoch timestamps to record scanning history.
+
+--------------------------------------------------------------------------------
+C. DATETIME (datetime)
+--------------------------------------------------------------------------------
+* Classification: Minor, Standard (Date & Time Operations)
+* Core Purpose: Converts flat epoch seconds or database timestamps into readable 
+  local formats (e.g. 10:24 AM).
+* Why it was chosen: Built-in calendar mathematics engine.
+* Key Methods Used:
+  - datetime.strptime() / datetime.strftime(): Parses and formats raw timestamps 
+    for UI-friendly logs.
+
+--------------------------------------------------------------------------------
+D. JSON (json)
+--------------------------------------------------------------------------------
+* Classification: Minor, Standard (JSON Encoder/Decoder)
+* Core Purpose: Serializes Python structures into raw text strings for Firebase REST 
+  payloads, and deserializes server payloads.
+* Key Methods Used:
+  - json.dumps(): Converts dict/list data into string format.
+  - json.loads(): Parses incoming API text responses.
+
+================================================================================
+4. ARCHITECTURAL INTERACTION DIAGRAM
+================================================================================
+
+   [ ESP32-CAM stream ]
+            |
+            | (urllib.request)
+            v
+   [ Raw Byte Stream ]
+            |
+            | (numpy.array)
+            v
+   [ NumPy uint8 Matrix ]
+            |
+            | (cv2.imdecode)
+            v
+   [ OpenCV BGR Matrix ] ----> (pyzbar.decode) ----> [ QR Decoded Data ]
+            |                                                 |
+            | (cv2.imshow)                                    | (requests.put)
+            v                                                 v
+   [ Real-Time Desktop Monitor ]                     [ Firebase Cloud DB ]
+                                                              ^
+                                                              | (requests.get)
+                                                              v
+                                                    [ Pandas DataFrame ]
+                                                              |
+                                                              | (st.plotly_chart)
+                                                              v
+                                                    [ streamlit Dashboard ]
+
+================================================================================
+   PMPL Smart Bus Libraries Documentation Created Successfully!
+================================================================================
