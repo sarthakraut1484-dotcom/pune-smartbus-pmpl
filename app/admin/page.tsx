@@ -250,9 +250,13 @@ export default function AdminPage() {
   /* ── Auth guard ── */
   useEffect(() => {
     const localIsAdmin = sessionStorage.getItem('isAdminAuthenticated') === 'true'
-    setIsAdmin(localIsAdmin)
-    setAuthLoading(false)
-  }, [])
+    if (!localIsAdmin) {
+      router.push('/login?redirect=/admin')
+    } else {
+      setIsAdmin(true)
+      setAuthLoading(false)
+    }
+  }, [router])
 
   /* ── Live Firebase tickets ── */
   useEffect(() => {
@@ -506,6 +510,7 @@ export default function AdminPage() {
   const handleLogout = () => {
     sessionStorage.removeItem('isAdminAuthenticated')
     setIsAdmin(false)
+    router.push('/login')
   }
 
   const handleStopChange = async (stopName: string) => {
@@ -834,123 +839,12 @@ export default function AdminPage() {
   ════════════════════════════════════════════ */
   if (!isAdmin) {
     return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'linear-gradient(135deg, #0b0f1a 0%, #0f172a 50%, #0b0f1a 100%)',
-        padding: '2rem'
-      }}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0b0f1a' }}>
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.45 }}
-          style={{
-            width: '100%', maxWidth: '420px',
-            background: 'rgba(15, 23, 42, 0.9)',
-            border: '1px solid rgba(56,189,248,0.15)',
-            borderRadius: '24px',
-            padding: '40px',
-            boxShadow: '0 30px 80px -20px rgba(0,0,0,0.7), 0 0 60px rgba(56,189,248,0.04)'
-          }}
-        >
-          {/* Shield Icon */}
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div style={{
-              width: '64px', height: '64px', borderRadius: '18px',
-              background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
-              border: '1px solid rgba(56,189,248,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 16px'
-            }}>
-              <Lock size={28} color="#38bdf8" strokeWidth={2.2} />
-            </div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', marginBottom: '6px', letterSpacing: '-0.5px' }}>
-              Admin Access
-            </h1>
-            <p style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
-              SmartBus · PMPL Control Panel
-            </p>
-          </div>
-
-          {/* Error */}
-          <AnimatePresence>
-            {loginError && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                style={{
-                  background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
-                  borderRadius: '12px', padding: '12px 16px', marginBottom: '20px',
-                  display: 'flex', gap: '10px', alignItems: 'center'
-                }}
-              >
-                <AlertTriangle size={16} color="#ef4444" />
-                <span style={{ color: '#ef4444', fontSize: '0.82rem', fontWeight: 700 }}>{loginError}</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Form */}
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <input
-              type="email"
-              placeholder="Admin Email"
-              value={loginEmail}
-              onChange={e => setLoginEmail(e.target.value)}
-              required
-              style={{
-                height: '48px', background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px',
-                padding: '0 16px', color: '#fff', fontSize: '0.9rem', outline: 'none',
-                fontFamily: 'inherit'
-              }}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={loginPassword}
-              onChange={e => setLoginPassword(e.target.value)}
-              required
-              style={{
-                height: '48px', background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px',
-                padding: '0 16px', color: '#fff', fontSize: '0.9rem', outline: 'none',
-                fontFamily: 'inherit'
-              }}
-            />
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              disabled={loginLoading}
-              style={{
-                height: '50px', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
-                color: '#fff', border: 'none', borderRadius: '13px', fontWeight: 800,
-                fontSize: '0.92rem', cursor: loginLoading ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                opacity: loginLoading ? 0.7 : 1, fontFamily: 'inherit'
-              }}
-            >
-              {loginLoading ? (
-                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
-                  style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }}
-                />
-              ) : (
-                <><ShieldCheck size={18} /> Access Dashboard</>
-              )}
-            </motion.button>
-          </form>
-
-          {/* ── Admin Credentials Tip ── */}
-          <div style={{ marginTop: '20px', padding: '12px 16px', borderRadius: '12px', background: 'rgba(56,189,248,0.04)', border: '1px solid rgba(56,189,248,0.1)' }}>
-            <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700, marginBottom: '4px', textAlign: 'center' }}>
-              ℹ️ Admin Credentials
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textAlign: 'center' }}>
-              Use <code style={{ color: '#fff', background: 'rgba(255,255,255,0.08)', padding: '2px 4px', borderRadius: '4px' }}>admin@0861</code> for both email & password.
-            </div>
-          </div>
-        </motion.div>
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+          style={{ width: '40px', height: '40px', border: '3px solid #1e293b', borderTopColor: '#38bdf8', borderRadius: '50%' }}
+        />
       </div>
     )
   }
