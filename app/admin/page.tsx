@@ -307,6 +307,14 @@ export default function AdminPage() {
     const telemetryUnsub = onValue(stopTelemetryRef, (snapshot) => {
       const val = snapshot.val() || {}
       setStopTelemetry(val)
+      
+      // Calculate overall unbooked count dynamically
+      const totalEntries = Object.values(val).reduce((sum: number, stop: any) => sum + (stop.entries || 0), 0)
+      const totalScans = Object.values(val).reduce((sum: number, stop: any) => sum + (stop.scans || 0), 0)
+      const unbookedCount = Math.max(0, totalEntries - totalScans)
+      
+      // Sync unbooked count back to Firebase under /stats/unbooked_count
+      update(ref(db, 'stats'), { unbooked_count: unbookedCount })
     })
 
     return () => {
