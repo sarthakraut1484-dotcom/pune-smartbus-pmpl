@@ -307,14 +307,6 @@ export default function AdminPage() {
     const telemetryUnsub = onValue(stopTelemetryRef, (snapshot) => {
       const val = snapshot.val() || {}
       setStopTelemetry(val)
-      
-      // Calculate overall unbooked count dynamically
-      const totalEntries = Object.values(val).reduce((sum: number, stop: any) => sum + (stop.entries || 0), 0)
-      const totalScans = Object.values(val).reduce((sum: number, stop: any) => sum + (stop.scans || 0), 0)
-      const unbookedCount = Math.max(0, totalEntries - totalScans)
-      
-      // Sync unbooked count back to Firebase under /stats/unbooked_count
-      update(ref(db, 'stats'), { unbooked_count: unbookedCount })
     })
 
     return () => {
@@ -323,6 +315,18 @@ export default function AdminPage() {
       telemetryUnsub()
     }
   }, [isAdmin])
+
+  /* ── Sync overall unbooked count to Firebase under /stats/unbooked_count ── */
+  useEffect(() => {
+    if (!isAdmin) return
+    
+    const overallUnbooked = Object.entries(stopTelemetry).reduce((sum, [stopName, stats]: any) => {
+      const booked = tickets.filter(t => t.source === stopName).length
+      return sum + Math.max(0, (stats.entries || 0) - booked)
+    }, 0)
+    
+    update(ref(db, 'stats'), { unbooked_count: overallUnbooked })
+  }, [tickets, stopTelemetry, isAdmin])
 
   /* ── Live Firebase telemetry (IR Sensors) & Log Generation ── */
   const prevTelemetry = useRef({ entered: 0, exited: 0, invalidScans: 0 })
