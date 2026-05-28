@@ -509,6 +509,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAdminAuthenticated')
+    sessionStorage.removeItem('localUser')
     setIsAdmin(false)
     router.push('/login')
   }
